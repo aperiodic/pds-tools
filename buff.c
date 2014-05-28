@@ -4,12 +4,13 @@
 #include "buff.h"
 
 
-CharBuff* new_buff(int size) {
+CharBuff* new_buff(int capacity) {
     CharBuff* buff = malloc(sizeof(CharBuff));
     buff->pos = 0;
-    buff->size = size;
+    buff->size = 0;
+    buff->capacity = capacity;
 
-    char* chars = malloc(sizeof(char) * size);
+    char* chars = malloc(sizeof(char) * capacity);
     buff->chars = chars;
 
     return buff;
@@ -19,23 +20,24 @@ int insert(CharBuff* buff, int c) {
     if (c == EOF) return EOF;
     if (buff->pos >= buff->size) return EOF;
 
-    buff->chars[buff->pos++] = c;
-    if (buff->pos > buff->capacity) {
-        buff->capacity = buff->pos;
+    buff->chars[buff->pos++] = (char) c;
+    if (buff->pos > buff->size) {
+        buff->size = buff->pos;
     }
     return (int) c;
 }
 
 char* copy_contents(CharBuff* buff) {
-    char* copy = malloc(sizeof(char) * buff->capacity);
-    for (int i = 0; i < buff->capacity; i++) {
+    char* copy = malloc(sizeof(char) * (1 + buff->size));
+    for (int i = 0; i < buff->size; i++) {
         copy[i] = buff->chars[i];
     }
+    copy[buff->size] = '\0';
     return copy;
 }
 
 void reset_buff(CharBuff* buff) {
-    buff->capacity = 0;
+    buff->size = 0;
     buff->pos = 0;
 }
 
