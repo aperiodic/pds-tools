@@ -38,9 +38,9 @@ typedef struct StrVal {
 
 typedef struct NumVal {
     char type;
-    char numtype;
     int int_value;
     float float_value;
+    char* units;
 } NumVal;
 
 typedef union Value {
@@ -48,12 +48,12 @@ typedef union Value {
     NumVal number;
 } Value;
 
-typedef struct PolyAssoc {
+typedef struct TupleAssoc {
     char type;
     char* key;
     char size;
     Value* values;
-} PolyAssoc;
+} TupleAssoc;
 
 typedef struct PrimAssoc {
     char type;
@@ -63,21 +63,30 @@ typedef struct PrimAssoc {
 
 typedef union Association {
     PrimAssoc prim;
-    PolyAssoc poly;
+    TupleAssoc tuple;
 } Association;
 
-typedef struct PDSObj {
+typedef struct PDSObject {
+    char type;
     char* name;
     Association* assocs;
 } PDSObject;
 
 typedef struct Label {
+    char type;
     char* version;
     Association* assocs;
     PDSObject* objs;
 } Label;
 
-// Token Types
+typedef union CFGTerm {
+    StrVal string;
+    NumVal number;
+    TupleAssoc tuple_assoc;
+    PrimAssoc primitive_assoc;
+    PDSObject object;
+    Label label;
+} CFGTerm;
 
 //
 // Token Types
