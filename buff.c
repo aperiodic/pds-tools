@@ -18,7 +18,7 @@ CharBuff* new_buff(int capacity) {
 
 int insert(CharBuff* buff, int c) {
     if (c == EOF) return EOF;
-    if (buff->pos >= buff->size) return EOF;
+    if (buff->size >= buff->capacity) return EOF;
 
     buff->chars[buff->pos++] = (char) c;
     if (buff->pos > buff->size) {

@@ -17,6 +17,7 @@
 typedef enum ObjectType {
     TKN_EQUALS = 1,
     TKN_STRING,
+    TKN_DATE,
     TKN_INTEGER,
     TKN_RATIONAL,
     TKN_UNIT,
@@ -92,6 +93,11 @@ typedef union CFGTerm {
 // Token Types
 //
 
+typedef struct TknGeneric {
+    char type;
+    char* str;
+} TknGeneric;
+
 typedef struct TknEquals {
     char type;
     char* str;
@@ -101,6 +107,11 @@ typedef struct TknString {
     char type;
     char* str;
 } TknString;
+
+typedef struct TknDate {
+    char type;
+    char* str;
+} TknDate;
 
 typedef struct TknInteger {
     char type;
@@ -120,8 +131,10 @@ typedef struct TknUnit {
 } TknUnit;
 
 typedef union Token {
+    TknGeneric generic;
     TknEquals equals;
     TknString string;
+    TknDate date;
     TknInteger integer;
     TknRational rational;
     TknUnit unit;
@@ -144,6 +157,14 @@ Token new_token_equals() {
 Token new_token_string(CharBuff* token_buff) {
     TknString token;
     token.type = TKN_STRING;
+    token.str = copy_contents(token_buff);
+
+    return (Token) token;
+}
+
+Token new_token_date(CharBuff* token_buff) {
+    TknDate token;
+    token.type = TKN_DATE;
     token.str = copy_contents(token_buff);
 
     return (Token) token;
@@ -212,6 +233,10 @@ void destroy_token_stream(TokenStream* stream) {
     free(stream);
 }
 
+void rewind_stream(TokenStream* stream) {
+    stream->pos = 0;
+}
+
 Token* next_token(TokenStream* stream) {
     if (stream->pos >= stream->size) {
         return NULL;
@@ -247,6 +272,7 @@ enum tkn_sm_state tkn_sm_step( char head
                 return TKN_SM_UNIT;
             }
             if (head == '=') {
+                insert(curr_token, '=');
                 Token eq_token = new_token_equals();
                 *finished = eq_token;
                 return TKN_SM_WHITESPACE;
@@ -293,7 +319,7 @@ enum tkn_sm_state tkn_sm_step( char head
             if (head == '"') {
                 Token string = new_token_string(curr_token);
                 *finished = string;
-                return TKN_SM_STRING_LITERAL;
+                return TKN_SM_WHITESPACE;
             }
             if (head == '\n' || head == '\r') {
                 return TKN_SM_STRING_LITERAL;
@@ -342,8 +368,8 @@ enum tkn_sm_state tkn_sm_step( char head
 
         case TKN_SM_DATE:
             if (is_whitespace(head)) {
-                Token string = new_token_string(curr_token);
-                *finished = string;
+                Token date = new_token_date(curr_token);
+                *finished = date;
                 return TKN_SM_WHITESPACE;
             } else {
                 insert(curr_token, (int) head);
@@ -381,7 +407,10 @@ token_setup:
     while((next_char = fgetc(input)) != EOF) {
         state = tkn_sm_step(next_char, state, curr_token, &completed_token);
 
-        if (!memcmp(&completed_token, &null_token, sizeof(Token))) {
+        if (memcmp(&completed_token, &null_token, sizeof(Token)) != 0) {
+            //char* token_str = copy_contents(curr_token);
+            //printf("%s\r\n", token_str);
+            //free(token_str);
             insert_token(stream, completed_token);
         }
 
@@ -399,10 +428,37 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    char* filename = argv[0];
+    char* filename = argv[1];
     FILE* pds = fopen(filename, "rt");
 
-    tokenize(pds);
+    TokenStream* tokens = tokenize(pds);
+    printf("got %d tokens!\n", tokens->size);
+
+    Token* curr;
+    while ((curr = next_token(tokens)) != NULL) {
+        char* name;
+        switch(curr->generic.type) {
+            case TKN_EQUALS:
+                name = "EQUALS";
+                break;
+            case TKN_STRING:
+                name = "STRING";
+                break;
+            case TKN_DATE:
+                name = "DATE";
+                break;
+            case TKN_INTEGER:
+                name = "INTEGER";
+                break;
+            case TKN_RATIONAL:
+                name = "RATIONAL";
+                break;
+            case TKN_UNIT:
+                name = "UNIT";
+                break;
+        }
+        printf("%s: %s\r\n", name, curr->generic.str);
+    }
 
     fclose(pds);
 
