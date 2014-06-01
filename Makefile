@@ -1,4 +1,4 @@
-parse: parse.c buff.h buff.c
+parse: parse.c buff.h buff.c token.c token_stream.c
 	gcc -I. --std=c99 -o parse parse.c buff.c token.c token_stream.c
 
 .PHONY: clean
