@@ -146,6 +146,13 @@ enum tkn_sm_state tkn_sm_step( char head
             }
             if (head == '\n' || head == '\r') {
                 return TKN_SM_STRING_LITERAL;
+            }
+            if (is_whitespace(head)) {
+                char tc = tail_char(curr_token);
+                if (!is_whitespace(tc)) {
+                    insert(curr_token, (int) head);
+                }
+                return TKN_SM_STRING_LITERAL;
             } else {
                 insert(curr_token, (int) head);
                 return TKN_SM_STRING_LITERAL;

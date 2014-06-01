@@ -13,6 +13,7 @@ typedef struct CharBuff {
 CharBuff* new_buff(int size);
 int insert(CharBuff* buff, int c);
 char* copy_contents(CharBuff* buff);
+char tail_char(CharBuff* buff);
 void reset_buff(CharBuff* buff);
 void destroy_buff(CharBuff* buff);
 

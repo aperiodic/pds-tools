@@ -36,6 +36,14 @@ char* copy_contents(CharBuff* buff) {
     return copy;
 }
 
+char tail_char(CharBuff* buff) {
+    if (buff->size <= 0) {
+        return '\0';
+    } else  {
+        return buff->chars[buff->size - 1];
+    }
+}
+
 void reset_buff(CharBuff* buff) {
     buff->size = 0;
     buff->pos = 0;
