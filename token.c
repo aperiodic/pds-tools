@@ -71,3 +71,40 @@ Token new_token_rational(CharBuff* token_buff) {
     sscanf(token.str, "%f", &token.floatval);
     return (Token) token;
 }
+
+void print_token(Token t) {
+    char* name;
+    switch(t.generic.type) {
+        case TKN_EOL:
+            name = "EOL";
+            break;
+        case TKN_EQUALS:
+            name = "EQUALS";
+            break;
+        case TKN_LEFT_PAREN:
+            name = "LEFT PAREN";
+            break;
+        case TKN_RIGHT_PAREN:
+            name = "RIGHT PAREN";
+            break;
+        case TKN_IDENTIFIER:
+            name = "IDENTIFIER";
+            break;
+        case TKN_STRING:
+            name = "STRING";
+            break;
+        case TKN_DATE:
+            name = "DATE";
+            break;
+        case TKN_INTEGER:
+            name = "INTEGER";
+            break;
+        case TKN_RATIONAL:
+            name = "RATIONAL";
+            break;
+        case TKN_UNIT:
+            name = "UNIT";
+            break;
+    }
+    printf("%s: %s\r\n", name, t.generic.str);
+}

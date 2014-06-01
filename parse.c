@@ -255,39 +255,6 @@ int main(int argc, char** argv) {
 
     Token* curr;
     while ((curr = next_token(tokens)) != NULL) {
-        char* name;
-        switch(curr->generic.type) {
-            case TKN_EOL:
-                name = "EOL";
-                break;
-            case TKN_EQUALS:
-                name = "EQUALS";
-                break;
-            case TKN_LEFT_PAREN:
-                name = "LEFT PAREN";
-                break;
-            case TKN_RIGHT_PAREN:
-                name = "RIGHT PAREN";
-                break;
-            case TKN_IDENTIFIER:
-                name = "IDENTIFIER";
-                break;
-            case TKN_STRING:
-                name = "STRING";
-                break;
-            case TKN_DATE:
-                name = "DATE";
-                break;
-            case TKN_INTEGER:
-                name = "INTEGER";
-                break;
-            case TKN_RATIONAL:
-                name = "RATIONAL";
-                break;
-            case TKN_UNIT:
-                name = "UNIT";
-                break;
-        }
-        printf("%s: %s\r\n", name, curr->generic.str);
+        print_token(*curr);
     }
 }
