@@ -39,6 +39,14 @@ Token* next_token(TokenStream* stream) {
     }
 }
 
+Token peek(TokenStream* stream) {
+    if (stream->pos < 0 || stream->pos >= stream->size) {
+        return null_token();
+    } else {
+        return stream->tokens[stream->pos];
+    }
+}
+
 Token tail_peek(TokenStream* stream) {
     if (stream->size > 0) {
         return stream->tokens[stream->size - 1];

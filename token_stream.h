@@ -14,6 +14,7 @@ void destroy_token_stream(TokenStream* stream);
 
 int insert_token(TokenStream* stream, Token token);
 void rewind_stream(TokenStream* stream);
+Token peek(TokenStream* stream);
 Token tail_peek(TokenStream* stream);
 Token* next_token(TokenStream* stream);
 
