@@ -10,24 +10,8 @@
 #define MAX_TOKENS 1e5
 #define TOKENIZING_BUFFER_SIZE 1024
 
+#define is_whitespace(c) (c == ' ' || c == ',' || c == '\t' || c == '\n' || c == '\r')
 
-//
-// Data Types
-//
-
-
-//
-// Token Types
-//
-
-//
-// Token Constructors
-//
-
-
-//
-// Tokenizing
-//
 
 enum tkn_sm_state {
     TKN_SM_WHITESPACE,
@@ -42,9 +26,6 @@ enum tkn_sm_state {
     TKN_SM_INT_OR_RATIONAL,
     TKN_SM_RATIONAL
 };
-
-
-#define is_whitespace(c) (c == ' ' || c == ',' || c == '\t' || c == '\n' || c == '\r')
 
 enum tkn_sm_state tkn_sm_step( char head
                              , enum tkn_sm_state state
@@ -247,9 +228,6 @@ token_setup:
         state = tkn_sm_step(next_char, state, curr_token, &completed_token);
 
         if (memcmp(&completed_token, &null_token, sizeof(Token)) != 0) {
-            //char* token_str = copy_contents(curr_token);
-            //printf("%s\r\n", token_str);
-            //free(token_str);
             insert_token(stream, completed_token);
         }
 
