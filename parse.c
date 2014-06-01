@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 #include "buff.h"
 
@@ -16,6 +17,8 @@
 
 typedef enum ObjectType {
     TKN_EQUALS = 1,
+    TKN_LEFT_PAREN,
+    TKN_RIGHT_PAREN,
     TKN_STRING,
     TKN_DATE,
     TKN_INTEGER,
@@ -103,6 +106,16 @@ typedef struct TknEquals {
     char* str;
 } TknEquals;
 
+typedef struct TknLeftParen {
+    char type;
+    char* str;
+} TknLeftParen;
+
+typedef struct TknRightParen {
+    char type;
+    char* str;
+} TknRightParen;
+
 typedef struct TknString {
     char type;
     char* str;
@@ -144,14 +157,25 @@ typedef union Token {
 // Token Constructors
 //
 
-Token new_token_equals() {
+Token new_onechar_token(char c, enum ObjectType t) {
     TknEquals token;
-    token.type = TKN_EQUALS;
+    token.type = t;
     token.str = malloc(sizeof(char) * 2);
-    token.str[0] = '=';
+    token.str[0] = c;
     token.str[1] = '\0';
 
     return (Token) token;
+}
+Token new_token_equals() {
+    return new_onechar_token('=', TKN_EQUALS);
+}
+
+Token new_token_left_paren() {
+    return new_onechar_token('(', TKN_LEFT_PAREN);
+}
+
+Token new_token_right_paren() {
+    return new_onechar_token(')', TKN_RIGHT_PAREN);
 }
 
 Token new_token_string(CharBuff* token_buff) {
@@ -209,7 +233,10 @@ typedef struct TokenStream {
 
 enum tkn_sm_state {
     TKN_SM_WHITESPACE,
+    TKN_SM_COMMENT,
+    TKN_SM_COMMENT_PENULTIMATE,
     TKN_SM_IDENTIFIER,
+    TKN_SM_ADD_RIGHT_PAREN,
     TKN_SM_UNIT,
     TKN_SM_STRING_LITERAL,
     TKN_SM_DATE_OR_INT_OR_RATIONAL,
@@ -253,7 +280,7 @@ int insert_token(TokenStream* stream, Token token) {
     return 0;
 }
 
-#define is_whitespace(c) (c == ' ' || c == '\t' || c == '\n' || c == '\r')
+#define is_whitespace(c) (c == ' ' || c == ',' || c == '\t' || c == '\n' || c == '\r')
 
 enum tkn_sm_state tkn_sm_step( char head
                              , enum tkn_sm_state state
@@ -265,6 +292,9 @@ enum tkn_sm_state tkn_sm_step( char head
             if (is_whitespace(head)) {
                 return TKN_SM_WHITESPACE;
             }
+            if (head == '/') {
+                return TKN_SM_COMMENT;
+            }
             if (head == '"') {
                 return TKN_SM_STRING_LITERAL;
             }
@@ -272,9 +302,18 @@ enum tkn_sm_state tkn_sm_step( char head
                 return TKN_SM_UNIT;
             }
             if (head == '=') {
-                insert(curr_token, '=');
                 Token eq_token = new_token_equals();
                 *finished = eq_token;
+                return TKN_SM_WHITESPACE;
+            }
+            if (head == '(') {
+                Token lp_token = new_token_left_paren();
+                *finished = lp_token;
+                return TKN_SM_WHITESPACE;
+            }
+            if (head == ')') {
+                Token rp_token = new_token_right_paren();
+                *finished = rp_token;
                 return TKN_SM_WHITESPACE;
             }
             if (head == '-') {
@@ -295,15 +334,46 @@ enum tkn_sm_state tkn_sm_step( char head
             }
             break;
 
+        case TKN_SM_COMMENT:
+            if (head == '*') {
+                return TKN_SM_COMMENT_PENULTIMATE;
+            } else {
+                return TKN_SM_COMMENT;
+            }
+            break;
+
+        case TKN_SM_COMMENT_PENULTIMATE:
+            if (head == '/') {
+                return TKN_SM_WHITESPACE;
+            } else {
+                return TKN_SM_COMMENT;
+            }
+            break;
+
         case TKN_SM_IDENTIFIER:
             if (is_whitespace(head)) {
                 Token identifier = new_token_string(curr_token);
                 *finished = identifier;
                 return TKN_SM_WHITESPACE;
+            }
+            if (head == ')') {
+                Token identifier = new_token_string(curr_token);
+                *finished = identifier;
+                return TKN_SM_ADD_RIGHT_PAREN;
             } else {
                 insert(curr_token, (int) head);
                 return TKN_SM_IDENTIFIER;
             }
+            break;
+
+        case TKN_SM_ADD_RIGHT_PAREN:
+            assert(is_whitespace(head));
+            {
+                Token rp = new_token_right_paren(')');
+                *finished = rp;
+                return TKN_SM_WHITESPACE;
+            }
+            break;
 
         case TKN_SM_UNIT:
             if (head == '>') {
@@ -440,6 +510,12 @@ int main(int argc, char** argv) {
         switch(curr->generic.type) {
             case TKN_EQUALS:
                 name = "EQUALS";
+                break;
+            case TKN_LEFT_PAREN:
+                name = "LEFT PAREN";
+                break;
+            case TKN_RIGHT_PAREN:
+                name = "RIGHT PAREN";
                 break;
             case TKN_STRING:
                 name = "STRING";
