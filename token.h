@@ -87,6 +87,7 @@ Token new_token_date(CharBuff* token_buff);
 Token new_token_unit(CharBuff* token_buff);
 Token new_token_integer(CharBuff* token_buff);
 Token new_token_rational(CharBuff* token_buff);
+Token null_token();
 
 void print_token(Token t);
 

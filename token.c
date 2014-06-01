@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "token.h"
 
@@ -70,6 +71,12 @@ Token new_token_rational(CharBuff* token_buff) {
     token.str = copy_contents(token_buff);
     sscanf(token.str, "%f", &token.floatval);
     return (Token) token;
+}
+
+Token null_token() {
+    Token null;
+    memset(&null, 0, sizeof(Token));
+    return null;
 }
 
 void print_token(Token t) {
