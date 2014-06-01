@@ -1,3 +1,6 @@
+#ifndef BUFF_H
+#define BUFF_H
+
 #include <stdint.h>
 
 typedef struct CharBuff {
@@ -12,3 +15,5 @@ int insert(CharBuff* buff, int c);
 char* copy_contents(CharBuff* buff);
 void reset_buff(CharBuff* buff);
 void destroy_buff(CharBuff* buff);
+
+#endif

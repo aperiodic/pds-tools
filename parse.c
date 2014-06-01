@@ -4,6 +4,8 @@
 #include <assert.h>
 
 #include "buff.h"
+#include "token.h"
+#include "token_stream.h"
 
 #define MAX_TOKENS 1e5
 #define TOKENIZING_BUFFER_SIZE 1024
@@ -13,234 +15,19 @@
 // Data Types
 //
 
-// Grand Type Enum
-
-typedef enum ObjectType {
-    TKN_EQUALS = 1,
-    TKN_LEFT_PAREN,
-    TKN_RIGHT_PAREN,
-    TKN_STRING,
-    TKN_IDENTIFIER,
-    TKN_DATE,
-    TKN_INTEGER,
-    TKN_RATIONAL,
-    TKN_UNIT,
-    CFG_STRING,
-    CFG_NUMBER_INTEGRAL,
-    CFG_NUMBER_RATIONAL,
-    CFG_ASSOCIATION_TUPLE,
-    CFG_ASSOCIATION_PRIMITIVE,
-    CFG_OBJECT,
-    CFG_LABEL
-} ObjectType;
-
-// CFG Types
-
-typedef struct StrVal {
-    char type;
-    char* value;
-} StrVal;
-
-typedef struct NumVal {
-    char type;
-    int int_value;
-    float float_value;
-    char* units;
-} NumVal;
-
-typedef union Value {
-    StrVal string;
-    NumVal number;
-} Value;
-
-typedef struct TupleAssoc {
-    char type;
-    char* key;
-    char size;
-    Value* values;
-} TupleAssoc;
-
-typedef struct PrimAssoc {
-    char type;
-    char* key;
-    Value value;
-} PrimAssoc;
-
-typedef union Association {
-    PrimAssoc prim;
-    TupleAssoc tuple;
-} Association;
-
-typedef struct PDSObject {
-    char type;
-    char* name;
-    Association* assocs;
-} PDSObject;
-
-typedef struct Label {
-    char type;
-    char* version;
-    Association* assocs;
-    PDSObject* objs;
-} Label;
-
-typedef union CFGTerm {
-    StrVal string;
-    NumVal number;
-    TupleAssoc tuple_assoc;
-    PrimAssoc primitive_assoc;
-    PDSObject object;
-    Label label;
-} CFGTerm;
 
 //
 // Token Types
 //
 
-typedef struct TknGeneric {
-    char type;
-    char* str;
-} TknGeneric;
-
-typedef struct TknEquals {
-    char type;
-    char* str;
-} TknEquals;
-
-typedef struct TknLeftParen {
-    char type;
-    char* str;
-} TknLeftParen;
-
-typedef struct TknRightParen {
-    char type;
-    char* str;
-} TknRightParen;
-
-typedef struct TknString {
-    char type;
-    char* str;
-} TknString;
-
-typedef struct TknIdentifier {
-    char type;
-    char* str;
-} TknIdentifier;
-
-typedef struct TknDate {
-    char type;
-    char* str;
-} TknDate;
-
-typedef struct TknInteger {
-    char type;
-    char* str;
-    int intval;
-} TknInteger;
-
-typedef struct TknRational {
-    char type;
-    char* str;
-    float floatval;
-} TknRational;
-
-typedef struct TknUnit {
-    char type;
-    char* str;
-} TknUnit;
-
-typedef union Token {
-    TknGeneric generic;
-    TknEquals equals;
-    TknRightParen right_paren;
-    TknLeftParen left_paren;
-    TknIdentifier identifier;
-    TknString string;
-    TknDate date;
-    TknInteger integer;
-    TknRational rational;
-    TknUnit unit;
-} Token;
-
 //
 // Token Constructors
 //
 
-Token new_onechar_token(char c, enum ObjectType t) {
-    TknEquals token;
-    token.type = t;
-    token.str = malloc(sizeof(char) * 2);
-    token.str[0] = c;
-    token.str[1] = '\0';
-
-    return (Token) token;
-}
-Token new_token_equals() {
-    return new_onechar_token('=', TKN_EQUALS);
-}
-
-Token new_token_left_paren() {
-    return new_onechar_token('(', TKN_LEFT_PAREN);
-}
-
-Token new_token_right_paren() {
-    return new_onechar_token(')', TKN_RIGHT_PAREN);
-}
-
-Token new_token_identifier(CharBuff* token_buff) {
-    TknIdentifier token;
-    token.type = TKN_IDENTIFIER;
-    token.str = copy_contents(token_buff);
-    return (Token) token;
-}
-
-Token new_token_string(CharBuff* token_buff) {
-    TknString token;
-    token.type = TKN_STRING;
-    token.str = copy_contents(token_buff);
-    return (Token) token;
-}
-
-Token new_token_date(CharBuff* token_buff) {
-    TknDate token;
-    token.type = TKN_DATE;
-    token.str = copy_contents(token_buff);
-    return (Token) token;
-}
-
-Token new_token_unit(CharBuff* token_buff) {
-    TknUnit token;
-    token.type = TKN_UNIT;
-    token.str = copy_contents(token_buff);
-    return (Token) token;
-}
-
-Token new_token_integer(CharBuff* token_buff) {
-    TknInteger token;
-    token.type = TKN_INTEGER;
-    token.str = copy_contents(token_buff);
-    sscanf(token.str, "%d", &token.intval);
-    return (Token) token;
-}
-
-Token new_token_rational(CharBuff* token_buff) {
-    TknRational token;
-    token.type = TKN_RATIONAL;
-    token.str = copy_contents(token_buff);
-    sscanf(token.str, "%f", &token.floatval);
-    return (Token) token;
-}
 
 //
 // Tokenizing
 //
-
-typedef struct TokenStream {
-    Token* tokens;
-    int pos;
-    int size;
-    int capacity;
-} TokenStream;
 
 enum tkn_sm_state {
     TKN_SM_WHITESPACE,
@@ -256,40 +43,6 @@ enum tkn_sm_state {
     TKN_SM_RATIONAL
 };
 
-TokenStream* new_token_stream(int capacity) {
-    TokenStream* ts = malloc(sizeof(TokenStream));
-    ts->pos = 0;
-    ts->size = 0;
-    ts->capacity = capacity;
-    ts->tokens = malloc(sizeof(Token) * capacity);
-
-    return ts;
-}
-
-void destroy_token_stream(TokenStream* stream) {
-    free(stream->tokens);
-    free(stream);
-}
-
-void rewind_stream(TokenStream* stream) {
-    stream->pos = 0;
-}
-
-Token* next_token(TokenStream* stream) {
-    if (stream->pos >= stream->size) {
-        return NULL;
-    } else {
-        return &stream->tokens[stream->pos++];
-    }
-}
-
-int insert_token(TokenStream* stream, Token token) {
-    if (stream->size < stream->capacity) {
-        stream->tokens[stream->size++] = token;
-        return 1;
-    }
-    return 0;
-}
 
 #define is_whitespace(c) (c == ' ' || c == ',' || c == '\t' || c == '\n' || c == '\r')
 
@@ -300,6 +53,11 @@ enum tkn_sm_state tkn_sm_step( char head
                              ) {
     switch (state) {
         case TKN_SM_WHITESPACE:
+            if (head == '\n') {
+                Token eol_token = new_token_eol();
+                *finished = eol_token;
+                return TKN_SM_WHITESPACE;
+            }
             if (is_whitespace(head)) {
                 return TKN_SM_WHITESPACE;
             }
@@ -521,6 +279,9 @@ int main(int argc, char** argv) {
     while ((curr = next_token(tokens)) != NULL) {
         char* name;
         switch(curr->generic.type) {
+            case TKN_EOL:
+                name = "EOL";
+                break;
             case TKN_EQUALS:
                 name = "EQUALS";
                 break;
