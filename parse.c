@@ -31,12 +31,15 @@ enum tkn_sm_state tkn_sm_step( char head
                              , enum tkn_sm_state state
                              , CharBuff* curr_token
                              , Token* finished
+                             , Token* tail
                              ) {
     switch (state) {
         case TKN_SM_WHITESPACE:
             if (head == '\n') {
                 Token eol_token = new_token_eol();
-                *finished = eol_token;
+                if (tail->generic.type != TKN_EOL) {
+                    *finished = eol_token;
+                }
                 return TKN_SM_WHITESPACE;
             }
             if (is_whitespace(head)) {
@@ -219,13 +222,17 @@ TokenStream* tokenize(FILE* input) {
 
     CharBuff* curr_token;
     Token completed_token;
+    Token tail_token;
 
 token_setup:
     curr_token = new_buff(TOKENIZING_BUFFER_SIZE);
     memset(&completed_token, 0, sizeof(Token));
 
+    memset(&tail_token, 0, sizeof(Token));
+    tail_token = tail_peek(stream);
+
     while((next_char = fgetc(input)) != EOF) {
-        state = tkn_sm_step(next_char, state, curr_token, &completed_token);
+        state = tkn_sm_step(next_char, state, curr_token, &completed_token, &tail_token);
 
         if (memcmp(&completed_token, &null_token, sizeof(Token)) != 0) {
             insert_token(stream, completed_token);
