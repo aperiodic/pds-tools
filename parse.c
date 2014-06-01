@@ -20,6 +20,7 @@ typedef enum ObjectType {
     TKN_LEFT_PAREN,
     TKN_RIGHT_PAREN,
     TKN_STRING,
+    TKN_IDENTIFIER,
     TKN_DATE,
     TKN_INTEGER,
     TKN_RATIONAL,
@@ -121,6 +122,11 @@ typedef struct TknString {
     char* str;
 } TknString;
 
+typedef struct TknIdentifier {
+    char type;
+    char* str;
+} TknIdentifier;
+
 typedef struct TknDate {
     char type;
     char* str;
@@ -146,6 +152,9 @@ typedef struct TknUnit {
 typedef union Token {
     TknGeneric generic;
     TknEquals equals;
+    TknRightParen right_paren;
+    TknLeftParen left_paren;
+    TknIdentifier identifier;
     TknString string;
     TknDate date;
     TknInteger integer;
@@ -178,11 +187,17 @@ Token new_token_right_paren() {
     return new_onechar_token(')', TKN_RIGHT_PAREN);
 }
 
+Token new_token_identifier(CharBuff* token_buff) {
+    TknIdentifier token;
+    token.type = TKN_IDENTIFIER;
+    token.str = copy_contents(token_buff);
+    return (Token) token;
+}
+
 Token new_token_string(CharBuff* token_buff) {
     TknString token;
     token.type = TKN_STRING;
     token.str = copy_contents(token_buff);
-
     return (Token) token;
 }
 
@@ -190,7 +205,6 @@ Token new_token_date(CharBuff* token_buff) {
     TknDate token;
     token.type = TKN_DATE;
     token.str = copy_contents(token_buff);
-
     return (Token) token;
 }
 
@@ -198,7 +212,6 @@ Token new_token_unit(CharBuff* token_buff) {
     TknUnit token;
     token.type = TKN_UNIT;
     token.str = copy_contents(token_buff);
-
     return (Token) token;
 }
 
@@ -207,7 +220,6 @@ Token new_token_integer(CharBuff* token_buff) {
     token.type = TKN_INTEGER;
     token.str = copy_contents(token_buff);
     sscanf(token.str, "%d", &token.intval);
-
     return (Token) token;
 }
 
@@ -216,7 +228,6 @@ Token new_token_rational(CharBuff* token_buff) {
     token.type = TKN_RATIONAL;
     token.str = copy_contents(token_buff);
     sscanf(token.str, "%f", &token.floatval);
-
     return (Token) token;
 }
 
@@ -352,12 +363,12 @@ enum tkn_sm_state tkn_sm_step( char head
 
         case TKN_SM_IDENTIFIER:
             if (is_whitespace(head)) {
-                Token identifier = new_token_string(curr_token);
+                Token identifier = new_token_identifier(curr_token);
                 *finished = identifier;
                 return TKN_SM_WHITESPACE;
             }
             if (head == ')') {
-                Token identifier = new_token_string(curr_token);
+                Token identifier = new_token_identifier(curr_token);
                 *finished = identifier;
                 return TKN_SM_ADD_RIGHT_PAREN;
             } else {
@@ -502,6 +513,8 @@ int main(int argc, char** argv) {
     FILE* pds = fopen(filename, "rt");
 
     TokenStream* tokens = tokenize(pds);
+    fclose(pds);
+
     printf("got %d tokens!\n", tokens->size);
 
     Token* curr;
@@ -516,6 +529,9 @@ int main(int argc, char** argv) {
                 break;
             case TKN_RIGHT_PAREN:
                 name = "RIGHT PAREN";
+                break;
+            case TKN_IDENTIFIER:
+                name = "IDENTIFIER";
                 break;
             case TKN_STRING:
                 name = "STRING";
@@ -535,8 +551,4 @@ int main(int argc, char** argv) {
         }
         printf("%s: %s\r\n", name, curr->generic.str);
     }
-
-    fclose(pds);
-
-
 }
