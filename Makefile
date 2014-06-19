@@ -1,5 +1,5 @@
-parse: parse.c buff.h buff.c token.c token_stream.c
-	gcc -I. --std=c99 -o parse parse.c buff.c token.c token_stream.c
+parse: parse.c buff.c token.c token_stream.c pool.c
+	gcc -I. --std=c99 -o parse parse.c buff.c token.c token_stream.c pool.c
 
 .PHONY: clean
 .PHONY: force
