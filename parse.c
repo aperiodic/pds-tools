@@ -248,8 +248,7 @@ TokenStream* tokenize(FILE* input) {
     enum tkn_sm_state state = TKN_SM_WHITESPACE;
     char next_char;
 
-    Token null_token;
-    memset(&null_token, 0, sizeof(Token));
+    Token nullt = null_token();
 
     CharBuff* curr_token;
     Token completed_token;
@@ -265,7 +264,7 @@ token_setup:
     while((next_char = fgetc(input)) != EOF) {
         state = tkn_sm_step(next_char, state, curr_token, &completed_token, &tail_token);
 
-        if (memcmp(&completed_token, &null_token, sizeof(Token)) != 0) {
+        if (memcmp(&completed_token, &nullt, sizeof(Token)) != 0) {
             insert_token(stream, completed_token);
         }
 
