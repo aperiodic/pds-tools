@@ -1,6 +1,8 @@
 #ifndef TOKENSTREAM_H
 #define TOKENSTREAM_H
 
+#include "token.h"
+
 typedef struct TokenStream {
     Token* tokens;
     int pos;
