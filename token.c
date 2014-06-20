@@ -36,6 +36,27 @@ Token new_token_identifier(CharBuff* token_buff) {
     return (Token) token;
 }
 
+Token new_fixed_str_token(char* contents, enum ObjectType t) {
+    char content_bytes = strlen(contents) + 1;
+    TknGeneric token;
+    token.type = t;
+    token.str = malloc(sizeof(char) * content_bytes);
+    memcpy(token.str, contents, content_bytes);
+    return (Token) token;
+}
+
+Token new_token_begin_object() {
+    return new_fixed_str_token("OBJECT", TKN_BEGIN_OBJECT);
+}
+
+Token new_token_end_object() {
+    return new_fixed_str_token("END_OBJECT", TKN_END_OBJECT);
+}
+
+Token new_token_end() {
+    return new_fixed_str_token("END", TKN_END);
+}
+
 Token new_token_string(CharBuff* token_buff) {
     TknString token;
     token.type = TKN_STRING;
@@ -96,6 +117,15 @@ void print_token(Token t) {
             break;
         case TKN_IDENTIFIER:
             name = "IDENTIFIER";
+            break;
+        case TKN_BEGIN_OBJECT:
+            name = "OBJECT";
+            break;
+        case TKN_END_OBJECT:
+            name = "END_OBJECT";
+            break;
+        case TKN_END:
+            name = "END";
             break;
         case TKN_STRING:
             name = "STRING";

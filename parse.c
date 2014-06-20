@@ -6,6 +6,7 @@
 #include "buff.h"
 #include "token.h"
 #include "token_stream.h"
+#include "util.h"
 
 #define MAX_TOKENS 1e5
 #define TOKENIZING_BUFFER_SIZE 1024
@@ -32,7 +33,15 @@ enum tkn_sm_state tkn_sm_step( char head
                              , CharBuff* curr_token
                              , Token* finished
                              , Token* tail
-                             ) {
+                             )
+{
+    static const char* begin_object_str = "OBJECT";
+    static const char begin_object_str_len = 6;
+    static const char* end_object_str = "END_OBJECT";
+    static const char end_object_str_len = 10;
+    static const char* end_str = "END";
+    static const char end_str_len = 3;
+
     switch (state) {
         case TKN_SM_WHITESPACE:
             if (head == '\n') {
@@ -104,15 +113,30 @@ enum tkn_sm_state tkn_sm_step( char head
             break;
 
         case TKN_SM_IDENTIFIER:
-            if (is_whitespace(head)) {
-                Token identifier = new_token_identifier(curr_token);
-                *finished = identifier;
-                return TKN_SM_WHITESPACE;
-            }
-            if (head == ')') {
-                Token identifier = new_token_identifier(curr_token);
-                *finished = identifier;
-                return TKN_SM_ADD_RIGHT_PAREN;
+            if (is_whitespace(head) || head == ')') {
+                // check if it's a reserved identifier
+                char* chars = curr_token->chars;
+                char count = curr_token->size;
+                if (memcmp(chars, begin_object_str, min(count, begin_object_str_len)) == 0) {
+                    Token begin_object = new_token_begin_object();
+                    *finished = begin_object;
+                } else if (memcmp(chars, end_object_str, min(count, end_object_str_len)) == 0
+                            && count == end_object_str_len) {
+                    Token end_object = new_token_end_object();
+                    *finished = end_object;
+                } else if (memcmp(chars, end_str, min(count, end_str_len)) == 0) {
+                    Token end = new_token_end();
+                    *finished = end;
+                } else {
+                    Token identifier = new_token_identifier(curr_token);
+                    *finished = identifier;
+                }
+
+                if (head == ')') {
+                    return TKN_SM_ADD_RIGHT_PAREN;
+                } else {
+                    return TKN_SM_WHITESPACE;
+                }
             } else {
                 insert(curr_token, (int) head);
                 return TKN_SM_IDENTIFIER;

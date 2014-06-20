@@ -39,6 +39,21 @@ typedef struct TknIdentifier {
     char* str;
 } TknIdentifier;
 
+typedef struct TknBeginObject {
+  char type;
+  char* str;
+} TknBeginObject;
+
+typedef struct TknEndObject {
+  char type;
+  char* str;
+} TknEndObject;
+
+typedef struct TknEnd {
+  char type;
+  char* str;
+} TknEnd;
+
 typedef struct TknDate {
     char type;
     char* str;
@@ -68,6 +83,9 @@ typedef union Token {
     TknRightParen right_paren;
     TknLeftParen left_paren;
     TknIdentifier identifier;
+    TknBeginObject begin_object;
+    TknEndObject end_object;
+    TknEnd end;
     TknString string;
     TknDate date;
     TknInteger integer;
@@ -82,6 +100,9 @@ Token new_token_equals();
 Token new_token_left_paren();
 Token new_token_right_paren();
 Token new_token_identifier(CharBuff* token_buff);
+Token new_token_begin_object();
+Token new_token_end_object();
+Token new_token_end();
 Token new_token_string(CharBuff* token_buff);
 Token new_token_date(CharBuff* token_buff);
 Token new_token_unit(CharBuff* token_buff);
