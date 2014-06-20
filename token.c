@@ -5,7 +5,7 @@
 #include "token.h"
 
 Token new_onechar_token(char c, enum ObjectType t) {
-    TknEquals token;
+    TknGeneric token;
     token.type = t;
     token.str = malloc(sizeof(char) * 2);
     token.str[0] = c;
