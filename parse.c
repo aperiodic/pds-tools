@@ -9,7 +9,7 @@
 #include "util.h"
 
 #define MAX_TOKENS 1e5
-#define TOKENIZING_BUFFER_SIZE 1024
+#define TOKENIZING_BUFFER_SIZE 2048
 
 #define is_whitespace(c) (c == ' ' || c == ',' || c == '\t' || c == '\n' || c == '\r')
 
@@ -146,7 +146,7 @@ enum tkn_sm_state tkn_sm_step( char head
         case TKN_SM_ADD_RIGHT_PAREN:
             assert(is_whitespace(head));
             {
-                Token rp = new_token_right_paren(')');
+                Token rp = new_token_right_paren();
                 *finished = rp;
                 return TKN_SM_WHITESPACE;
             }
@@ -173,7 +173,7 @@ enum tkn_sm_state tkn_sm_step( char head
             }
             if (is_whitespace(head)) {
                 char tc = tail_char(curr_token);
-                if (!is_whitespace(tc)) {
+                if (!is_whitespace(tc) || tc == ',') {
                     insert(curr_token, (int) head);
                 }
                 return TKN_SM_STRING_LITERAL;
@@ -274,6 +274,7 @@ token_setup:
         }
     }
 
+    rewind_stream(stream);
     return stream;
 }
 
