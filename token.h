@@ -110,6 +110,7 @@ Token new_token_integer(CharBuff* token_buff);
 Token new_token_rational(CharBuff* token_buff);
 Token null_token();
 
+char* token_name(Token t);
 void print_token(Token t);
 
 #endif

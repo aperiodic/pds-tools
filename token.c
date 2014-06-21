@@ -100,48 +100,37 @@ Token null_token() {
     return null;
 }
 
-void print_token(Token t) {
-    char* name;
+char* token_name(Token t) {
     switch(t.generic.type) {
         case TKN_EOL:
-            name = "EOL";
-            break;
+            return "EOL";
         case TKN_EQUALS:
-            name = "EQUALS";
-            break;
+            return "EQUALS";
         case TKN_LEFT_PAREN:
-            name = "LEFT PAREN";
-            break;
+            return "LEFT PAREN";
         case TKN_RIGHT_PAREN:
-            name = "RIGHT PAREN";
-            break;
+            return "RIGHT PAREN";
         case TKN_IDENTIFIER:
-            name = "IDENTIFIER";
-            break;
+            return "IDENTIFIER";
         case TKN_BEGIN_OBJECT:
-            name = "OBJECT";
-            break;
+            return "OBJECT";
         case TKN_END_OBJECT:
-            name = "END_OBJECT";
-            break;
+            return "END_OBJECT";
         case TKN_END:
-            name = "END";
-            break;
+            return "END";
         case TKN_STRING:
-            name = "STRING";
-            break;
+            return "STRING";
         case TKN_DATE:
-            name = "DATE";
-            break;
+            return "DATE";
         case TKN_INTEGER:
-            name = "INTEGER";
-            break;
+            return "INTEGER";
         case TKN_RATIONAL:
-            name = "RATIONAL";
-            break;
+            return "RATIONAL";
         case TKN_UNIT:
-            name = "UNIT";
-            break;
+            return "UNIT";
     }
-    printf("%s: %s\r\n", name, t.generic.str);
+}
+
+void print_token(Token t) {
+    printf("%s: %s\r\n", token_name(t), t.generic.str);
 }
