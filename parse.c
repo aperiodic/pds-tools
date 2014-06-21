@@ -6,7 +6,6 @@
 #include "buff.h"
 #include "token.h"
 #include "token_stream.h"
-#include "util.h"
 
 #define MAX_TOKENS 1e5
 #define TOKENIZING_BUFFER_SIZE 2048
@@ -36,11 +35,8 @@ enum tkn_sm_state tkn_sm_step( char head
                              )
 {
     static const char* begin_object_str = "OBJECT";
-    static const char begin_object_str_len = 6;
     static const char* end_object_str = "END_OBJECT";
-    static const char end_object_str_len = 10;
     static const char* end_str = "END";
-    static const char end_str_len = 3;
 
     switch (state) {
         case TKN_SM_WHITESPACE:
@@ -115,16 +111,13 @@ enum tkn_sm_state tkn_sm_step( char head
         case TKN_SM_IDENTIFIER:
             if (is_whitespace(head) || head == ')') {
                 // check if it's a reserved identifier
-                char* chars = curr_token->chars;
-                char count = curr_token->size;
-                if (memcmp(chars, begin_object_str, min(count, begin_object_str_len)) == 0) {
+                if (strcmp(curr_token->chars, begin_object_str) == 0) {
                     Token begin_object = new_token_begin_object();
                     *finished = begin_object;
-                } else if (memcmp(chars, end_object_str, min(count, end_object_str_len)) == 0
-                            && count == end_object_str_len) {
+                } else if (strcmp(curr_token->chars, end_object_str) == 0) {
                     Token end_object = new_token_end_object();
                     *finished = end_object;
-                } else if (memcmp(chars, end_str, min(count, end_str_len)) == 0) {
+                } else if (strcmp(curr_token->chars, end_str) == 0) {
                     Token end = new_token_end();
                     *finished = end;
                 } else {
