@@ -24,7 +24,7 @@ Comments with /* */, but do not seem to be multi-line (always start and end on s
          object: OBJECT = <string|"name">\n<association>* END_OBJECT = <string|"name">
     association: <key> = <value> | <key> = <tuple>
             key: ^?[A-Z_]+
-          tuple: (<value|t>,<value|t>)
+          tuple: \(<value|t>(,<value|t>)+\)
           value: <string> | -?<number>
          string: [A-Z][A-Za-z0-9_]* | "[^"]*"
          number: <float> | <integer>
