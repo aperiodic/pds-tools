@@ -20,6 +20,7 @@ typedef enum ObjectType {
     TKN_RATIONAL,
     TKN_UNIT,
     CFG_STRING,
+    CFG_DATE,
     CFG_NUMBER_INTEGRAL,
     CFG_NUMBER_RATIONAL,
     CFG_ASSOCIATION_TUPLE,

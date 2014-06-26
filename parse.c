@@ -4,6 +4,7 @@
 #include <assert.h>
 
 #include "buff.h"
+#include "cfg.h"
 #include "token.h"
 #include "token_stream.h"
 
@@ -281,11 +282,8 @@ int main(int argc, char** argv) {
 
     TokenStream* tokens = tokenize(pds);
     fclose(pds);
-
     printf("got %d tokens!\n", tokens->size);
 
-    Token* curr;
-    while ((curr = next_token(tokens)) != NULL) {
-        print_token(*curr);
-    }
+    PDSLabel* label = parse_label(tokens);
+    printf("got a label with %d metadata associations and %d objects\n", label->assoc_count, label->object_count);
 }
