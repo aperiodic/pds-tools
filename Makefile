@@ -1,11 +1,11 @@
-parse: parse.c buff.c token.c token_stream.c pool.c cfg.c
-	gcc -I. --std=c99 -o parse parse.c buff.c token.c token_stream.c pool.c cfg.c
+main: parse.c buff.c token.c token_stream.c pool.c main.c
+	gcc -I. --std=c99 -o pds-parse main.c buff.c token.c token_stream.c pool.c parse.c
 
 .PHONY: clean
 .PHONY: force
 
 clean:
-	rm parse
+	rm pds-parse
 
 force:
-	make clean parse
+	make clean main
