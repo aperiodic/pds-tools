@@ -258,8 +258,9 @@ void parse_label_subterm( TokenStream* stream
 
     // parse label metadata association
     Association assoc = parse_association(stream);
-    if (strcmp(assoc.generic.key, version_str) == 0) {
-        label->version = assoc.generic.key;
+    if (strcmp(assoc.key, version_str) == 0) {
+        assert(assoc.value.generic.type == CFG_STRING);
+        label->version = assoc.value.primitive.string.value;
     } else {
         Association* next_assoc_slot = allocate_assoc(assoc_pool);
         *next_assoc_slot = assoc;

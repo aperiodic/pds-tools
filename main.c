@@ -285,5 +285,5 @@ int main(int argc, char** argv) {
     printf("got %d tokens!\n", tokens->size);
 
     PDSLabel* label = parse_label(tokens);
-    printf("got a label with %d metadata associations and %d objects\n", label->assoc_count, label->object_count);
+    printf("got a version %s label with %d metadata associations and %d objects\n", label->version, label->assoc_count, label->object_count);
 }
