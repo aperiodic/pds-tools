@@ -17,19 +17,11 @@
 // CFG Term Constructors
 //
 
-PrimAssoc new_prim_assoc(char* key, Value value) {
-    PrimAssoc assoc;
-    assoc.type = CFG_ASSOCIATION_PRIMITIVE;
+Association new_assoc(char* key, Value value) {
+    Association assoc;
+    assoc.type = CFG_ASSOCIATION;
     assoc.key = key;
     assoc.value = value;
-    return assoc;
-}
-
-TupleAssoc new_tuple_assoc(char* key, const TupleValue* values) {
-    TupleAssoc assoc;
-    assoc.type = CFG_ASSOCIATION_TUPLE;
-    assoc.key = key;
-    assoc.values = *values;
     return assoc;
 }
 
@@ -81,7 +73,7 @@ TupleValue parse_tuple(TokenStream* stream) {
     return tv;
 }
 
-Value parse_value(TokenStream* stream) {
+PrimitiveValue parse_primitive_value(TokenStream* stream) {
     Token head = peek(stream);
 
 #ifdef DEBUG
@@ -93,28 +85,28 @@ Value parse_value(TokenStream* stream) {
 #ifdef DEBUG
         printf("parsed string value \"%s\"\n", string->str);
 #endif
-        return (Value) new_shallow_str_val(string->str);
+        return (PrimitiveValue) new_shallow_str_val(string->str);
     } else if (head.generic.type == TKN_DATE) {
         TknDate* date = (TknDate*) next_token(stream);
         assert(date->type == TKN_DATE);
 #ifdef DEBUG
         printf("parsed date value %s\n", date->str);
 #endif
-        return (Value) new_shallow_date_val(date->str);
+        return (PrimitiveValue) new_shallow_date_val(date->str);
     } else {
         assert(head.generic.type == TKN_INTEGER || head.generic.type == TKN_RATIONAL);
-        Value value;
+        PrimitiveValue value;
 
         if (head.generic.type == TKN_INTEGER) {
             TknInteger* integer = (TknInteger*) next_token(stream);
-            value = (Value) new_int_val(integer->intval);
+            value = (PrimitiveValue) new_int_val(integer->intval);
 #ifdef DEBUG
             printf("parsed int value %i\n", value.integer.value);
 #endif
         } else {
             // head must be a rational
             TknRational* rational = (TknRational*) next_token(stream);
-            value = (Value) new_float_val(rational->floatval);
+            value = (PrimitiveValue) new_float_val(rational->floatval);
 #ifdef DEBUG
             printf("parsed float value %f\n", value.rational.value);
 #endif
@@ -154,24 +146,22 @@ Association parse_association(TokenStream* stream) {
 #endif
     assert(equals->generic.type == TKN_EQUALS);
 
-    Association assoc;
+    Value val;
     Token head = peek(stream);
 
 #ifdef DEBUG
     printf("parsing association value, head is %s \"%s\"\n", token_name(head), head.generic.str);
 #endif
     if (head.generic.type == TKN_LEFT_PAREN) {
-        TupleValue tuple_val = parse_tuple(stream);
-        assoc = (Association) new_tuple_assoc(key->generic.str, &tuple_val);
+        val = (Value) parse_tuple(stream);
     } else {
-        Value value = parse_value(stream);
-        assoc = (Association) new_prim_assoc(key->generic.str, value);
+        val = (Value) parse_primitive_value(stream);
     }
 
     Token* eol = next_token(stream);
     assert(eol->generic.type == TKN_EOL);
 
-    return assoc;
+    return new_assoc(key->generic.str, val);
 }
 
 PDSObject* parse_object(TokenStream* stream) {

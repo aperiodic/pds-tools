@@ -33,41 +33,30 @@ typedef struct FloatVal {
     char* units;
 } FloatVal;
 
-typedef union Value {
+typedef union PrimitiveValue {
     GenericVal generic;
     StrVal string;
     DateVal date;
     IntVal integer;
     FloatVal rational;
-} Value;
+} PrimitiveValue;
 
 typedef struct TupleValue {
   char type;
   char count;
-  Value* values;
+  PrimitiveValue* values;
 } TupleValue;
 
-typedef struct TupleAssoc {
-    char type;
-    char* key;
-    TupleValue values;
-} TupleAssoc;
+typedef union Value {
+  GenericVal generic;
+  PrimitiveValue primitive;
+  TupleValue tuple;
+} Value;
 
-typedef struct PrimAssoc {
+typedef struct Association {
     char type;
     char* key;
     Value value;
-} PrimAssoc;
-
-typedef struct GenericAssoc {
-    char type;
-    char* key;
-} GenericAssoc;
-
-typedef union Association {
-    GenericAssoc generic;
-    PrimAssoc prim;
-    TupleAssoc tuple;
 } Association;
 
 typedef struct PDSObject {
@@ -91,8 +80,7 @@ typedef union CFGTerm {
     StrVal string;
     IntVal integer;
     FloatVal rational;
-    TupleAssoc tuple_assoc;
-    PrimAssoc primitive_assoc;
+    Association assoc;
     PDSObject object;
     PDSLabel label;
 } CFGTerm;
