@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "hashtable.h"
+
 #include "cfg.h"
 #include "pool.h"
 #include "token.h"
@@ -283,6 +285,7 @@ PDSLabel* parse_label(TokenStream* stream) {
     label->object_count = 0;
     label->assocs = assocs->assocs;
     label->assoc_count = 0;
+    label->metadata = create_hashtable(MAX_LABEL_ASSOCS, NULL, NULL);
 
     Token nullt = null_token();
     Token head;
