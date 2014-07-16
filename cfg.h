@@ -1,7 +1,6 @@
 #ifndef CFG_H
 #define CFG_H
 
-#include "hashtable.h"
 #include "token_stream.h"
 
 typedef struct GenericTerm {
@@ -65,7 +64,6 @@ typedef struct PDSObject {
     char* name;
     char assoc_count;
     Association* assocs;
-    struct hashtable* attrs;
 } PDSObject;
 
 typedef struct PDSLabel {
@@ -73,7 +71,6 @@ typedef struct PDSLabel {
     char* version;
     int assoc_count;
     Association* assocs;
-    struct hashtable* metadata;
     int object_count;
     PDSObject* objects;
 } PDSLabel;
