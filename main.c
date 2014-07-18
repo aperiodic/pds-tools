@@ -24,7 +24,8 @@ enum tkn_sm_state {
     TKN_SM_IDENTIFIER,
     TKN_SM_ADD_RIGHT_PAREN,
     TKN_SM_UNIT,
-    TKN_SM_STRING_LITERAL,
+    TKN_SM_STRING_LITERAL_DOUBLE_QUOTE,
+    TKN_SM_STRING_LITERAL_SINGLE_QUOTE,
     TKN_SM_DATE_OR_INT_OR_RATIONAL,
     TKN_SM_DATE,
     TKN_SM_INT_OR_RATIONAL,
@@ -58,7 +59,10 @@ enum tkn_sm_state tkn_sm_step( char head
                 return TKN_SM_COMMENT;
             }
             if (head == '"') {
-                return TKN_SM_STRING_LITERAL;
+                return TKN_SM_STRING_LITERAL_DOUBLE_QUOTE;
+            }
+            if (head == '\'') {
+                return TKN_SM_STRING_LITERAL_SINGLE_QUOTE;
             }
             if (head == '<') {
                 return TKN_SM_UNIT;
@@ -159,24 +163,44 @@ enum tkn_sm_state tkn_sm_step( char head
                 return TKN_SM_UNIT;
             }
 
-        case TKN_SM_STRING_LITERAL:
+        case TKN_SM_STRING_LITERAL_DOUBLE_QUOTE:
             if (head == '"') {
                 Token string = new_token_string(curr_token);
                 *finished = string;
                 return TKN_SM_WHITESPACE;
             }
             if (head == '\n' || head == '\r') {
-                return TKN_SM_STRING_LITERAL;
+                return TKN_SM_STRING_LITERAL_DOUBLE_QUOTE;
             }
             if (is_whitespace(head)) {
                 char tc = tail_char(curr_token);
                 if (!is_whitespace(tc) || tc == ',') {
                     insert(curr_token, (int) head);
                 }
-                return TKN_SM_STRING_LITERAL;
+                return TKN_SM_STRING_LITERAL_DOUBLE_QUOTE;
             } else {
                 insert(curr_token, (int) head);
-                return TKN_SM_STRING_LITERAL;
+                return TKN_SM_STRING_LITERAL_DOUBLE_QUOTE;
+            }
+
+        case TKN_SM_STRING_LITERAL_SINGLE_QUOTE:
+            if (head == '\'') {
+                Token string = new_token_string(curr_token);
+                *finished = string;
+                return TKN_SM_WHITESPACE;
+            }
+            if (head == '\n' || head == '\r') {
+                return TKN_SM_STRING_LITERAL_SINGLE_QUOTE;
+            }
+            if (is_whitespace(head)) {
+                char tc = tail_char(curr_token);
+                if (!is_whitespace(tc) || tc == ',') {
+                    insert(curr_token, (int) head);
+                }
+                return TKN_SM_STRING_LITERAL_SINGLE_QUOTE;
+            } else {
+                insert(curr_token, (int) head);
+                return TKN_SM_STRING_LITERAL_SINGLE_QUOTE;
             }
 
         case TKN_SM_DATE_OR_INT_OR_RATIONAL:
