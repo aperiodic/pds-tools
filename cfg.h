@@ -59,20 +59,34 @@ typedef struct Association {
     Value value;
 } Association;
 
+// Not actually a CFG term, but has to be defined here.
+typedef struct AssociationPool {
+  Association* assocs;
+  int capacity;
+  int pos;
+} AssociationPool;
+
 typedef struct PDSObject {
     char type;
     char* name;
-    char assoc_count;
-    Association* assocs;
+    struct hashtable* attrs;
+    AssociationPool* assoc_pool;
 } PDSObject;
+
+// Not actually a CFG term, but has to be defined here.
+typedef struct PDSObjectPool {
+  PDSObject* objects;
+  int capacity;
+  int pos;
+} PDSObjectPool;
 
 typedef struct PDSLabel {
     char type;
     char* version;
-    int assoc_count;
-    Association* assocs;
-    int object_count;
-    PDSObject* objects;
+    struct hashtable* metadata;
+    AssociationPool* assoc_pool;
+    struct hashtable* objects;
+    PDSObjectPool* object_pool;
 } PDSLabel;
 
 typedef union CFGTerm {

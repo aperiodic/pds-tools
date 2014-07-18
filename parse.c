@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "hashtable.h"
+
 #include "cfg.h"
 #include "pool.h"
 #include "token.h"
@@ -12,6 +14,13 @@
 #define MAX_LABEL_OBJECTS 10
 #define MAX_LABEL_ASSOCS 100
 #define MAX_OBJECT_ASSOCS 200
+
+//
+// Typed hashtable functions
+//
+
+DEFINE_HASHTABLE_INSERT(ht_insert_value, char, Value)
+DEFINE_HASHTABLE_INSERT(ht_insert_pds_obj, char, PDSObject)
 
 //
 // CFG Term Constructors
@@ -184,9 +193,8 @@ PDSObject* parse_object(TokenStream* stream) {
     Token* eol = next_token(stream);
     assert(eol->generic.type == TKN_EOL);
 
-    AssociationPool* assoc_pool = new_assoc_pool(MAX_OBJECT_ASSOCS);
-    object->assocs = assoc_pool->assocs;
-    object->assoc_count = 0;
+    object->attrs = create_hashtable(MAX_LABEL_ASSOCS, djb2_hash, voidstrs_eq);
+    object->assoc_pool = new_assoc_pool(MAX_OBJECT_ASSOCS);
 
     Token head;
     while((head = peek(stream)).generic.type != TKN_END_OBJECT) {
@@ -196,8 +204,9 @@ PDSObject* parse_object(TokenStream* stream) {
 #endif
 
         assert(head.generic.type == TKN_IDENTIFIER);
-        Association* next_assoc_slot = allocate_assoc(assoc_pool);
+        Association* next_assoc_slot = allocate_assoc(object->assoc_pool);
         *next_assoc_slot = parse_association(stream);
+        ht_insert_value(object->attrs, next_assoc_slot->key, &next_assoc_slot->value);
     }
 
     next_token(stream); // consume end object token
@@ -217,8 +226,6 @@ PDSObject* parse_object(TokenStream* stream) {
 }
 
 void parse_label_subterm( TokenStream* stream
-                         , PDSObjectPool* object_pool
-                         , AssociationPool* assoc_pool
                          , const Token* nullt
                          , PDSLabel* label
                          )
@@ -249,10 +256,10 @@ void parse_label_subterm( TokenStream* stream
     // parse object
     if (head.generic.type == TKN_BEGIN_OBJECT) {
         PDSObject* obj = parse_object(stream);
-        PDSObject* next_obj_slot = allocate_pds_object(object_pool);
+        PDSObject* next_obj_slot = allocate_pds_object(label->object_pool);
         *next_obj_slot = *obj;
         free(obj);
-        label->object_count++;
+        ht_insert_pds_obj(label->objects, next_obj_slot->name, next_obj_slot);
         return;
     }
 
@@ -262,33 +269,30 @@ void parse_label_subterm( TokenStream* stream
         assert(assoc.value.generic.type == CFG_STRING);
         label->version = assoc.value.primitive.string.value;
     } else {
-        Association* next_assoc_slot = allocate_assoc(assoc_pool);
+        Association* next_assoc_slot = allocate_assoc(label->assoc_pool);
         *next_assoc_slot = assoc;
-        label->assoc_count++;
+        ht_insert_value(label->metadata, assoc.key, &next_assoc_slot->value);
     }
 }
 
 PDSLabel* parse_label(TokenStream* stream) {
     // return value
     PDSLabel* label = malloc(sizeof(PDSLabel));
+    label->metadata = create_hashtable(MAX_LABEL_ASSOCS, djb2_hash, voidstrs_eq);
+    label->objects = create_hashtable(MAX_LABEL_OBJECTS, djb2_hash, voidstrs_eq);
 
     // struct pools
     // This program isn't long-running so dynamic memory management is more
     // trouble than it's worth. We'll just use some fixed-size pools that we
     // never free.
-    PDSObjectPool* objects = new_pds_object_pool(MAX_LABEL_OBJECTS);
-    AssociationPool* assocs = new_assoc_pool(MAX_LABEL_ASSOCS);
-
-    label->objects = objects->objects;
-    label->object_count = 0;
-    label->assocs = assocs->assocs;
-    label->assoc_count = 0;
+    label->object_pool = new_pds_object_pool(MAX_LABEL_OBJECTS);
+    label->assoc_pool = new_assoc_pool(MAX_LABEL_ASSOCS);
 
     Token nullt = null_token();
     Token head;
 
     while((head = peek(stream)).generic.type != TKN_END) {
-        parse_label_subterm(stream, objects, assocs, &nullt, label);
+        parse_label_subterm(stream, &nullt, label);
     }
 
     next_token(stream); // consume end token
