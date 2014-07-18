@@ -3,6 +3,9 @@
 #include <string.h>
 #include <assert.h>
 
+#include "hashtable.h"
+#include "hashtable_itr.h"
+
 #include "buff.h"
 #include "cfg.h"
 #include "token.h"
@@ -271,6 +274,9 @@ token_setup:
     return stream;
 }
 
+DEFINE_HASHTABLE_SEARCH(ht_search_for_obj, char, PDSObject);
+DEFINE_HASHTABLE_SEARCH(ht_search_for_value, char, Value);
+
 int main(int argc, char** argv) {
     if (argc <= 1) {
         printf("Usage: parse <file>");
@@ -282,8 +288,53 @@ int main(int argc, char** argv) {
 
     TokenStream* tokens = tokenize(pds);
     fclose(pds);
-    printf("got %d tokens!\n", tokens->size);
 
     PDSLabel* label = parse_label(tokens);
-    printf("got a version %s label with %d metadata associations and %d objects\n", label->version, label->assoc_count, label->object_count);
+    printf( "Found a version \"%s\" label with %d objects\n"
+          , label->version
+          , hashtable_count(label->objects)
+          );
+
+    if (hashtable_count(label->objects) > 0) {
+        struct hashtable_itr* it8r = hashtable_iterator(label->objects);
+        char* name;
+        PDSObject* object;
+
+        printf("Label objects: ");
+        int obj_index = 0;
+        do {
+            name = hashtable_iterator_key(it8r);
+            object = hashtable_iterator_value(it8r);
+
+            printf("%i) \"%s\" ", obj_index, name);
+            obj_index++;
+        } while (hashtable_iterator_advance(it8r));
+
+        printf("\n");
+        free(it8r);
+    }
+
+    PDSObject* img;
+    if (img = ht_search_for_obj(label->objects, "IMAGE")) {
+        Value* lines_val;
+        int lines, line_samples;
+
+        if (lines_val = ht_search_for_value(img->attrs, "LINES")) {
+            assert(lines_val->generic.type == CFG_NUMBER_INTEGRAL);
+            lines = ((IntVal*) lines_val)->value;
+        }
+
+        Value* line_samples_val;
+        if (line_samples_val = ht_search_for_value(img->attrs, "LINE_SAMPLES")) {
+            assert(line_samples_val->generic.type == CFG_NUMBER_INTEGRAL);
+            line_samples = ((IntVal*) line_samples_val)->value;
+        }
+
+        if (lines > 0 && line_samples > 0) {
+            printf( "Found IMAGE object with %d lines and %d samples per line\n"
+                  , lines
+                  , line_samples
+                  );
+        }
+    }
 }
