@@ -25,7 +25,6 @@ int main(int argc, char** argv) {
     FILE* pds = fopen(filename, "rt");
 
     TokenStream* tokens = tokenize(pds);
-    fclose(pds);
 
     PDSLabel* label = parse_label(tokens);
     printf( "Found a version \"%s\" label with %d objects\n"
@@ -75,4 +74,6 @@ int main(int argc, char** argv) {
                   );
         }
     }
+
+    fclose(pds);
 }

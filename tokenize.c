@@ -30,7 +30,8 @@ enum tkn_sm_state {
     TKN_SM_DATE_OR_INT_OR_RATIONAL,
     TKN_SM_DATE,
     TKN_SM_INT_OR_RATIONAL,
-    TKN_SM_RATIONAL
+    TKN_SM_RATIONAL,
+    TKN_SM_END
 };
 
 enum tkn_sm_state tkn_sm_step( char head
@@ -129,6 +130,7 @@ enum tkn_sm_state tkn_sm_step( char head
                 } else if (strcmp(curr_token->chars, end_str) == 0) {
                     Token end = new_token_end();
                     *finished = end;
+                    return TKN_SM_END;
                 } else {
                     Token identifier = new_token_identifier(curr_token);
                     *finished = identifier;
@@ -261,6 +263,9 @@ enum tkn_sm_state tkn_sm_step( char head
                 insert(curr_token, (int) head);
                 return TKN_SM_RATIONAL;
             }
+
+        case TKN_SM_END:
+            return TKN_SM_END;
     }
 }
 
@@ -292,6 +297,9 @@ token_setup:
 
         if (state == TKN_SM_WHITESPACE) {
             goto token_setup;
+        } else if (state == TKN_SM_END) {
+            ungetc(next_char, input);
+            break;
         }
     }
 
