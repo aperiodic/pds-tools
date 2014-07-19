@@ -1,8 +1,12 @@
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "token.h"
+
+//
+// Token Constructors
+//
 
 Token new_onechar_token(char c, enum ObjectType t) {
     TknGeneric token;

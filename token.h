@@ -4,6 +4,10 @@
 #include "types.h"
 #include "buff.h"
 
+//
+// Typedefs
+//
+
 typedef struct TknGeneric {
     char type;
     char* str;
@@ -93,6 +97,9 @@ typedef union Token {
     TknUnit unit;
 } Token;
 
+//
+// Public API
+//
 
 Token new_onechar_token(char c, enum ObjectType t);
 Token new_token_eol();
