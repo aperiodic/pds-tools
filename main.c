@@ -1,7 +1,8 @@
+#include <assert.h>
+#include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
 
 #include "hashtable.h"
 #include "hashtable_itr.h"
@@ -17,12 +18,17 @@ DEFINE_HASHTABLE_SEARCH(ht_search_for_value, char, Value);
 
 int main(int argc, char** argv) {
     if (argc <= 1) {
-        printf("Usage: parse <file>");
-        return -1;
+        printf("Usage: parse <file>\n");
+        return EINVAL;
     }
 
     char* filename = argv[1];
     FILE* pds = fopen(filename, "rt");
+
+    if (pds == NULL) {
+        fprintf(stderr, "Error: file \"%s\" does not exist or can't be opened\n", filename);
+        return ENOENT;
+    }
 
     TokenStream* tokens = tokenize(pds);
 
