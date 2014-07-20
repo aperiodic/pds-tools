@@ -8,6 +8,7 @@
 #include "cfg.h"
 #include "pool.h"
 #include "token.h"
+#include "tokenize.h"
 #include "token_stream.h"
 #include "util.h"
 #include "parse.h"
@@ -298,4 +299,13 @@ PDSLabel* parse_label(TokenStream* stream) {
 
     next_token(stream); // consume end token
     return label;
+}
+
+PDSLabel* parse_file(FILE* pds_file) {
+    if (pds_file == NULL) {
+        return NULL;
+    }
+
+    TokenStream* tokens = tokenize(pds_file);
+    return parse_label(tokens);
 }

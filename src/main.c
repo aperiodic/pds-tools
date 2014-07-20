@@ -22,18 +22,20 @@ int main(int argc, char** argv) {
         printf("Usage: parse <file>\n");
         return EINVAL;
     }
-
     char* filename = argv[1];
-    FILE* pds = fopen(filename, "rt");
 
-    if (pds == NULL) {
+    FILE* pds_file = fopen(filename, "rt");
+    if (pds_file == NULL) {
         fprintf(stderr, "Error: file \"%s\" does not exist or can't be opened\n", filename);
         return ENOENT;
     }
 
-    TokenStream* tokens = tokenize(pds);
+    PDSLabel* label = parse_file(pds_file);
+    if (label == NULL) {
+        fprintf(stderr, "Error: file \"%s\" does not exist or can't be opened\n", filename);
+        return ENOENT;
+    }
 
-    PDSLabel* label = parse_label(tokens);
     printf( "Found a version \"%s\" label with %d objects\n"
           , label->version
           , hashtable_count(label->objects)
@@ -82,5 +84,5 @@ int main(int argc, char** argv) {
         }
     }
 
-    fclose(pds);
+    fclose(pds_file);
 }
