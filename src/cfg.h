@@ -99,7 +99,4 @@ typedef union CFGTerm {
     PDSLabel label;
 } CFGTerm;
 
-
-PDSLabel* parse_label(TokenStream* stream);
-
 #endif

@@ -10,6 +10,7 @@
 #include "token.h"
 #include "token_stream.h"
 #include "util.h"
+#include "parse.h"
 
 #define MAX_LABEL_OBJECTS 10
 #define MAX_LABEL_ASSOCS 100

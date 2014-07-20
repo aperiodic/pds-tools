@@ -9,6 +9,7 @@
 
 #include "buff.h"
 #include "cfg.h"
+#include "parse.h"
 #include "token.h"
 #include "token_stream.h"
 #include "tokenize.h"
