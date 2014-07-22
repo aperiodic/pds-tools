@@ -1,2 +1,5 @@
 parse
 pds-parse
+bindings/java/PDSTools.h
+bindings/java/*.class
+bindings/java/*.so
