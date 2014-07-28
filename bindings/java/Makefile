@@ -3,6 +3,8 @@ INCLUDE := -I/usr/lib/jvm/java-7-openjdk/include \
 					 -I../../lib/hash
 
 CSRCDIR := ../../src
+CLIBDIR := ../../lib
+HASHDIR := $(CLIBDIR)/hash
 CSRC := pdstools.c \
 				$(CSRCDIR)/buff.c \
 				$(CSRCDIR)/parse.c \
@@ -10,7 +12,9 @@ CSRC := pdstools.c \
 				$(CSRCDIR)/token.c \
 				$(CSRCDIR)/tokenize.c \
 				$(CSRCDIR)/token_stream.c \
-				$(CSRCDIR)/util.c
+				$(CSRCDIR)/util.c \
+				$(HASHDIR)/hashtable.c \
+				$(HASHDIR)/hashtable_itr.c
 
 main: pdstools.c PDSTools.h
 	gcc -o libpdstools.so -std=c99 -lc -shared -fPIC \
