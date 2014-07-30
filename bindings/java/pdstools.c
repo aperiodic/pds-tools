@@ -1,4 +1,4 @@
-#include "PDSTools.h"
+#include "org_aperiodic_PDSTools.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,11 +8,11 @@
 
 #define OBJECT "Ljava/lang/Object;"
 
-JNIEXPORT jobject JNICALL Java_PDSTools_parse( JNIEnv *env
-                                              , jobject obj
-                                              , jstring Filename
-                                              , jobject blank_map
-                                              )
+JNIEXPORT jobject JNICALL Java_org_aperiodic_PDSTools_parse( JNIEnv *env
+                                                           , jobject obj
+                                                           , jstring Filename
+                                                           , jobject blank_map
+                                                           )
 {
   const char* filename = (*env)->GetStringUTFChars(env, Filename, NULL);
   FILE* pds = fopen(filename, "rt");
