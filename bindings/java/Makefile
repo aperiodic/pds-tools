@@ -32,7 +32,7 @@ PDSTools.h: $(JPACKAGEDIR)/PDSTools.class
 
 .PHONY: clean
 clean:
-	rm -f *.so PDSTools.h **.class
+	rm -f *.so PDSTools.h $(JPACKAGEDIR)/*.class
 
 .PHONY: run
 run:
