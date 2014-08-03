@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 
 public class PDSTools {
-  public native Map<String,String> parse(String filename, Map<String,String> instance);
+  public native Map<String,Object> parse(String filename);
 
   public static void main(String[] args) {
     String label_name;
@@ -17,14 +17,13 @@ public class PDSTools {
     System.out.println(System.getProperty("java.library.path"));
     System.loadLibrary("pdstools");
     PDSTools pds_tools = new PDSTools();
-    Map<String,String> blank = new LinkedHashMap<String,String>();
-    Map<String,String> label = pds_tools.parse(label_name, blank);
+    Map<String,Object> mlabel = pds_tools.parse(label_name);
 
-    if (label == null) {
+    if (mlabel == null) {
       System.out.println("couldn't parse " + label_name);
       return;
     }
 
-    System.out.println("parsed a version " + label.get("PDS_VERSION_ID") + " label from " + label_name);
+    System.out.println("parsed a version " + mlabel.get("PDS_VERSION_ID") + " label from " + label_name);
   }
 }

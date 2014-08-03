@@ -11,7 +11,6 @@
 JNIEXPORT jobject JNICALL Java_org_aperiodic_PDSTools_parse( JNIEnv *env
                                                            , jobject obj
                                                            , jstring Filename
-                                                           , jobject blank_map
                                                            )
 {
   const char* filename = (*env)->GetStringUTFChars(env, Filename, NULL);
