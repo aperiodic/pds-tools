@@ -24,8 +24,8 @@ main: pdstools.c PDSTools.h
 		$(INCLUDE) \
 		$(CSRC)
 
-$(JPACKAGEDIR)/PDSTools.class: $(JPACKAGEDIR)/PDSTools.java
-	javac $(JPACKAGEDIR)/PDSTools.java
+$(JPACKAGEDIR)/*.class: $(JPACKAGEDIR)/*.java
+	javac $(JPACKAGEDIR)/*.java
 
 PDSTools.h: $(JPACKAGEDIR)/PDSTools.class
 	javah $(JPACKAGE).PDSTools
