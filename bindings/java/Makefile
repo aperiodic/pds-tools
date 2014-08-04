@@ -1,6 +1,7 @@
-INCLUDE := -I/usr/lib/jvm/java-7-openjdk/include \
-					 -I/usr/lib/jvm/java-7-openjdk/include/linux \
-					 -I../../lib/hash
+INCLUDE := -I../../src \
+           -I../../lib/hash \
+           -I/usr/lib/jvm/java-7-openjdk/include \
+           -I/usr/lib/jvm/java-7-openjdk/include/linux
 
 CSRCDIR := ../../src
 CLIBDIR := ../../lib
