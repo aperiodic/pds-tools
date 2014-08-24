@@ -128,7 +128,7 @@ jobject pdsvalue_to_jobject(Value* val, JNIEnv* env) {
 
             case CFG_DATE:
                 formatclass = (*env)->FindClass(env, "java/text/SimpleDateFormat");
-                jstring ISOFORMAT = (*env)->NewStringUTF(env, "yyyy-MM-dd'T'HH:mm:zz");
+                jstring ISOFORMAT = (*env)->NewStringUTF(env, "yyyy-MM-dd'T'HH:mm:ss");
                 if (formatclass == NULL) {
                     return (jobject) (*env)->NewStringUTF(env, "PDSTools/noSimpleDateFormatClass");
                 }
