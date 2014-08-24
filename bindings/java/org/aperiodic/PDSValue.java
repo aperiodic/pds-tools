@@ -10,7 +10,7 @@ enum ValueType {
   , TUPLE
 }
 
-public class PDSValue {
+public class PDSValue extends Object {
   private ValueType type;
   private int intVal;
   private float floatVal;
@@ -84,5 +84,26 @@ public class PDSValue {
     } else {
       return tupleVal;
     }
+  }
+
+  Object getValue() {
+    switch (this.type) {
+      case INT:
+        return intVal;
+      case FLOAT:
+        return floatVal;
+      case STRING:
+        return stringVal;
+      case DATE:
+        return dateVal;
+      case TUPLE:
+        return tupleVal;
+      default:
+        return null;
+    }
+  }
+
+  public String toString() {
+    return this.getValue().toString();
   }
 }
