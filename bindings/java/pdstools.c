@@ -60,6 +60,31 @@ JNIEXPORT jobject JNICALL Java_org_aperiodic_PDSTools_parse( JNIEnv *env
   jstring jversion = (*env)->NewStringUTF(env, label->version);
   (*env)->CallObjectMethod(env, jlabel, put, jversion_key, jversion);
 
+  jobject jmetadata = (*env)->NewObject(env, mapclass, map_init, MAP_CAPACITY);
+  jstring jmetadata_key = (*env)->NewStringUTF(env, "METADATA");
+  (*env)->CallObjectMethod(env, jlabel, put, jmetadata_key, jmetadata);
+
+  jobject jpds_objs = (*env)->NewObject(env, mapclass, map_init, MAP_CAPACITY);
+  jstring jobjs_key = (*env)->NewStringUTF(env, "OBJECTS");
+  (*env)->CallObjectMethod(env, jlabel, put, jobjs_key, jpds_objs);
+
+  // stick all the metadata into the label map
+  int datum_count = hashtable_count(label->metadata);
+  if (datum_count > 0) {
+      struct hashtable_itr* it8r = hashtable_iterator(label->metadata);
+      char* key;
+      Value* value;
+      do {
+          key = hashtable_iterator_key(it8r);
+          value = hashtable_iterator_value(it8r);
+
+          jstring jkey = (*env)->NewStringUTF(env, key);
+          jobject jvalue = pdsvalue_to_jobject(value, env);
+          (*env)->CallObjectMethod(env, jmetadata, put, jkey, jvalue);
+      } while (hashtable_iterator_advance(it8r));
+      free(it8r);
+  }
+
   // stick all the objects in the label map
   int object_count = hashtable_count(label->objects);
   if (object_count > 0) {
@@ -78,7 +103,7 @@ JNIEXPORT jobject JNICALL Java_org_aperiodic_PDSTools_parse( JNIEnv *env
 
           jstring jobj_key = (*env)->NewStringUTF(env, name);
           dump_pdsobj_to_jmap(pds_obj, obj_jmaps[i], env, put);
-          (*env)->CallObjectMethod(env, jlabel, put, jobj_key, obj_jmaps[i]);
+          (*env)->CallObjectMethod(env, jpds_objs, put, jobj_key, obj_jmaps[i]);
 
           i++;
       } while (hashtable_iterator_advance(it8r));
