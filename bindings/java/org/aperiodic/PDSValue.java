@@ -18,29 +18,32 @@ public class PDSValue {
   private Date dateVal;
   private PDSValue[] tupleVal;
 
-  public PDSValue(int intVal) {
-    this.type = ValueType.INT;
-    this.intVal = intVal;
-  }
-
-  public PDSValue(float floatVal) {
-    this.type = ValueType.FLOAT;
-    this.floatVal = floatVal;
-  }
-
-  public PDSValue(String stringVal) {
-    this.type = ValueType.STRING;
-    this.stringVal = stringVal;
-  }
-
-  public PDSValue(Date dateVal) {
-    this.type = ValueType.DATE;
-    this.dateVal = dateVal;
-  }
-
-  public PDSValue(PDSValue[] tupleVal) {
-    this.type = ValueType.TUPLE;
-    this.tupleVal = tupleVal;
+  public PDSValue(Object legalValue) {
+    Class val_class = legalValue.getClass();
+    if (val_class == java.lang.Integer.class) {
+      this.type = ValueType.INT;
+      this.intVal = ((Integer)legalValue).intValue();
+    } else if (val_class == java.lang.Float.class) {
+      this.type = ValueType.FLOAT;
+      this.floatVal = ((Float)legalValue).floatValue();
+    } else if (val_class == java.lang.String.class) {
+      this.type = ValueType.STRING;
+      this.stringVal = (String) legalValue;
+    } else if (val_class == Date.class) {
+      this.type = ValueType.DATE;
+      this.dateVal = (Date) legalValue;
+    } else if (val_class.isArray()) {
+      Class comp_class = val_class.getComponentType();
+      if (comp_class != this.getClass()) {
+          throw new IllegalArgumentException("tuple value's component type is not a PDSValue but "
+                                             + comp_class);
+      }
+      this.type = ValueType.TUPLE;
+      this.tupleVal = (PDSValue[]) legalValue;
+    } else {
+      throw new IllegalArgumentException("argument's class " + val_class
+                                         + " is not a legal PDSValue");
+    }
   }
 
   Integer getIntVal() {
