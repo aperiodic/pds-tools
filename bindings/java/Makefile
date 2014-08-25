@@ -19,22 +19,23 @@ CSRC := pdstools.c \
 
 JPACKAGE := org.aperiodic
 JPACKAGEDIR := org/aperiodic
+JCLASS := PDSTools
 
-main: pdstools.c PDSTools.h
+main: pdstools.c $(JCLASS).h
 	gcc -o libpdstools.so -std=c99 -lc -shared -fPIC \
 		$(INCLUDE) \
 		$(CSRC)
 
-$(JPACKAGEDIR)/*.class: $(JPACKAGEDIR)/*.java
+$(JPACKAGEDIR)/$(JCLASS).class: $(JPACKAGEDIR)/*.java
 	javac $(JPACKAGEDIR)/*.java
 
-PDSTools.h: $(JPACKAGEDIR)/PDSTools.class
-	javah $(JPACKAGE).PDSTools
+$(JCLASS).h: $(JPACKAGEDIR)/$(JCLASS).class
+	javah $(JPACKAGE).$(JCLASS)
 
 .PHONY: clean
 clean:
-	rm -f *.so PDSTools.h $(JPACKAGEDIR)/*.class
+	rm -f *.so $(JCLASS).h $(JPACKAGEDIR)/*.class
 
 .PHONY: run
 run:
-	java -Djava.library.path=. org.aperiodic.PDSTools
+	java -Djava.library.path=. $(JPACKAGE).$(JCLASS)
