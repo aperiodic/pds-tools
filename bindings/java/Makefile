@@ -21,13 +21,16 @@ JPACKAGE := org.aperiodic
 JPACKAGEDIR := org/aperiodic
 JCLASS := PDSTools
 
-main: pdstools.c $(JCLASS).h
+main: pdstools.c $(JCLASS).h $(JCLASS).jar
 	gcc -o libpdstools.so -std=c99 -lc -shared -fPIC \
 		$(INCLUDE) \
 		$(CSRC)
 
 $(JPACKAGEDIR)/$(JCLASS).class: $(JPACKAGEDIR)/*.java
 	javac $(JPACKAGEDIR)/*.java
+
+$(JCLASS).jar: $(JPACKAGEDIR)/$(JCLASS).class
+	jar cmf Manifest.txt $(JCLASS).jar $(JPACKAGEDIR)/*
 
 $(JCLASS).h: $(JPACKAGEDIR)/$(JCLASS).class
 	javah $(JPACKAGE).$(JCLASS)

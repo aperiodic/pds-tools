@@ -3,3 +3,4 @@ pds-parse
 bindings/java/*PDSTools.h
 **.class
 bindings/java/*.so
+**.jar
