@@ -16,6 +16,7 @@
 #define MAX_LABEL_OBJECTS 10
 #define MAX_LABEL_ASSOCS 100
 #define MAX_OBJECT_ASSOCS 200
+#define MAX_TUPLE_VALUES 100
 
 //
 // Typed hashtable functions
@@ -78,12 +79,6 @@ FloatVal new_float_val(float value) {
 // Parsing Functions
 //
 
-TupleValue parse_tuple(TokenStream* stream) {
-    printf("WARNING: parse_tuple not implemented!\n");
-    TupleValue tv;
-    return tv;
-}
-
 PrimitiveValue parse_primitive_value(TokenStream* stream) {
     Token head = peek(stream);
 
@@ -142,6 +137,36 @@ PrimitiveValue parse_primitive_value(TokenStream* stream) {
         }
         return value;
     }
+}
+
+TupleValue parse_tuple(TokenStream* stream) {
+    Token* lp = next_token(stream);
+#ifdef DEBUG
+    printf("parsing tuple, left paren token is %s \"%s\"\n", token_name(*lp), lp->generic.str);
+#endif
+    assert(lp->generic.type == TKN_LEFT_PAREN);
+
+    PrimitiveValue* values = malloc(sizeof(Value) * MAX_TUPLE_VALUES);
+    int i = 0;
+
+    Token head = peek(stream);
+    while (head.generic.type != TKN_RIGHT_PAREN) {
+        values[i++] = parse_primitive_value(stream);
+        head = peek(stream);
+    }
+
+    TupleValue tv;
+    tv.type = CFG_VALUE_TUPLE;
+    tv.count = i;
+    tv.values = values;
+
+    Token* rp = next_token(stream);
+#ifdef DEBUG
+    printf("parsing tuple, right paren token is %s \"%s\"\n", token_name(*rp), rp->generic.str);
+#endif
+    assert(rp->generic.type == TKN_RIGHT_PAREN);
+
+    return tv;
 }
 
 Association parse_association(TokenStream* stream) {
