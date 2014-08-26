@@ -199,7 +199,7 @@ jobject pdsvalue_to_jobject(Value* val, JNIEnv* env) {
                     return (jobject) (*env)->NewStringUTF(env, "PDSTools/noIntegerClass");
                 }
                 jmethodID jint_init = (*env)->GetMethodID(env, intclass, "<init>", "(I)V");
-                return (*env)->NewObject(env, intclass, jint_init, pval.integer.type);
+                return (*env)->NewObject(env, intclass, jint_init, pval.integer.value);
                 break;
 
             case CFG_NUMBER_RATIONAL:
