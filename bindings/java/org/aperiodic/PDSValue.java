@@ -104,6 +104,16 @@ public class PDSValue extends Object {
   }
 
   public String toString() {
-    return this.getValue().toString();
+    if (this.type != ValueType.TUPLE) {
+      return this.getValue().toString();
+    } else {
+      String str = "(";
+      for (int i = 0; i < tupleVal.length; i++) {
+        str += tupleVal[i].toString();
+        if ((i + 1) < tupleVal.length) str += ", ";
+      }
+      str += ")";
+      return str;
+    }
   }
 }

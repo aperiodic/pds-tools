@@ -140,7 +140,26 @@ void dump_pdsobj_to_jmap(PDSObject* obj, jobject jmap, JNIEnv* env, jmethodID pu
 
 jobject pdsvalue_to_jobject(Value* val, JNIEnv* env) {
     if (val->generic.type == CFG_VALUE_TUPLE) {
-        return (jobject) (*env)->NewStringUTF(env, "PDSTools/unsupported");
+        jclass jpdsval_class = (*env)->FindClass(env, "org/aperiodic/PDSValue");
+        if (jpdsval_class == NULL) {
+            return (jobject) (*env)->NewStringUTF(env, "PDSTools/noPDSValueClass");
+        }
+
+        TupleValue tval = val->tuple;
+        jobjectArray jtuple = (*env)->NewObjectArray(env, (jsize) tval.count, jpdsval_class, NULL);
+
+        for (int i = 0; i < tval.count; i++) {
+            jobject jval = pdsvalue_to_jobject((Value*) &(tval.values[i]), env);
+            jmethodID jpdsval_init = (*env)->GetMethodID( env
+                                                        , jpdsval_class
+                                                        , "<init>"
+                                                        , "(Ljava/lang/Object;)V"
+                                                        );
+            jobject jpdsval = (*env)->NewObject(env, jpdsval_class, jpdsval_init, jval);
+            (*env)->SetObjectArrayElement(env, jtuple, i, jpdsval);
+        }
+
+        return (jobject) jtuple;
     } else {
         PrimitiveValue pval = val->primitive;
         jclass formatclass, intclass, floatclass;
