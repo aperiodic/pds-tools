@@ -9,8 +9,15 @@ public class PDSTools {
 
   public static PDSLabel parseLabel(String filename) {
     if (!loaded) {
-      System.loadLibrary("pdstools");
-      loaded = true;
+      try {
+        System.loadLibrary("pdstools");
+        loaded = true;
+      } catch (UnsatisfiedLinkError e) {
+        System.err.println("UnsatisfiedLinkError: No pdstools shared library in your"
+                           + " java.library.path \"" + System.getProperty("java.library.path")
+                           + "\"");
+        return null;
+      }
     }
 
     PDSTools jni_wrapper = new PDSTools();
