@@ -66,7 +66,7 @@ typedef struct TknDate {
 typedef struct TknInteger {
     char type;
     char* str;
-    int intval;
+    unsigned long intval;
 } TknInteger;
 
 typedef struct TknRational {

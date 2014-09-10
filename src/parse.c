@@ -107,7 +107,7 @@ PrimitiveValue parse_primitive_value(TokenStream* stream) {
             TknInteger* integer = (TknInteger*) next_token(stream);
             value = (PrimitiveValue) new_int_val(integer->intval);
 #ifdef DEBUG
-            printf("parsed int value %i\n", value.integer.value);
+            printf("parsed int value %u\n", value.integer.value);
 #endif
         } else {
             // head must be a rational
