@@ -1,8 +1,69 @@
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
+#include "buff.h"
 #include "token.h"
+
+//
+// Constructor Utilities
+//
+
+bool int_literal_has_radix(const CharBuff* literal) {
+    for (int i = 0; i < literal->size; i++) {
+        if (literal->chars[i] == '#') {
+            return true;
+        }
+
+        if (i >= 2) {
+            return false; // since base >= 100 is impractical in ascii
+        }
+    }
+    return false;
+}
+
+int hex_digit_value(char digit) {
+    if (digit < '0') {
+        return 0;
+    } else if (digit <= '9') {
+        return digit - '0';
+    } else if (digit >= 'A' && digit <= 'Z') {
+        return digit - 'A' + 10;
+    } else if (digit >= 'a' && digit <= 'z') {
+        return digit - 'a' + 10;
+    } else {
+        return 0;
+    }
+}
+
+unsigned long parse_radixed_int_literal(const CharBuff* literal) {
+    int radix = 0;
+    sscanf(literal->chars, "%i", &radix);
+#ifdef DEBUG
+    printf("radixed literal's radix is %d\n", radix);
+#endif
+
+    int radix_pos = 0;
+    while(literal->chars[radix_pos] != '#') {
+        radix_pos++;
+    }
+    char* digits = &(literal->chars[radix_pos+1]);
+
+    unsigned long value = 0;
+    unsigned long pow = 1;
+    int digit_count = literal->size - radix_pos - 2;
+    for (int i = 0; i < digit_count; i++) {
+        int digit = hex_digit_value(digits[i]);
+        value += digit * pow;
+#ifdef DEBUG
+        printf("radixed literal's next digit has value %u, pow is %u, value is now %u\n", digit, pow, value);
+#endif
+        pow *= radix;
+    }
+
+    return value;
+}
 
 //
 // Token Constructors
@@ -86,7 +147,14 @@ Token new_token_integer(CharBuff* token_buff) {
     TknInteger token;
     token.type = TKN_INTEGER;
     token.str = copy_contents(token_buff);
-    sscanf(token.str, "%d", &token.intval);
+    if (int_literal_has_radix(token_buff)) {
+        token.intval = parse_radixed_int_literal(token_buff);
+#ifdef DEBUG
+        printf("integer literal %s has value %u\n", token_buff->chars, token.intval);
+#endif
+    } else {
+        sscanf(token.str, "%d", &token.intval);
+    }
     return (Token) token;
 }
 
