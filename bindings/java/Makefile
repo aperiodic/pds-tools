@@ -41,4 +41,4 @@ clean:
 
 .PHONY: run
 run:
-	java -Djava.library.path=. $(JPACKAGE).$(JCLASS)
+	java -Djava.library.path=. -jar $(JCLASS).jar -- ${label}
