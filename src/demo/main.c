@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
         return ENOENT;
     }
 
-    PDSLabel* label = parse_file(pds_file);
+    PDSLabel* label = pds_parse_file(pds_file);
     if (label == NULL) {
         fprintf(stderr, "Error: file \"%s\" does not exist or can't be opened\n", filename);
         return ENOENT;

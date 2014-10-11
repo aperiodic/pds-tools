@@ -5,7 +5,6 @@
 
 #include "cfg.h"
 
-PDSLabel* parse_tokens(TokenStream* stream);
-PDSLabel* parse_file(FILE* pds_file);
+PDSLabel* pds_parse_file(FILE* pds_file);
 
 #endif
