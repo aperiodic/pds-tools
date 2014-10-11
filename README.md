@@ -26,6 +26,7 @@ To get started:
 git clone https://github.com/aperiodic/pds-tools
 
 cd pds-tools
+make run
 ```
 
 The default make target produces a shared library named `libpdstools.so` in the `bin` folder.
