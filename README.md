@@ -57,7 +57,9 @@ The `debug` make target can be used to turn on print statements emitted during p
 make debug && ./build/pds-parse samples/mola.lbl
 ```
 
-## License
+## License & Copyright
+
+Copyright © Dan Lidral-Porter 2014.
 
 This library's source and its bindings are licensed under the GPLv3 (see `COPYING`).
 The included hash table library from Christopher Clark is included in `lib` under the terms of the MIT License; the GPLv3 license that applies to the rest of this repository does not include the contents of the `lib` directory.
