@@ -1,7 +1,13 @@
 # PDS Tools
 
-This is a C shared library that parses NASA [Planetary Data Science][nasa-pds] (PDS) files into an abstract syntax tree for easy machine manipulation.
+This is a C shared library that parses NASA [Planetary Data Science][nasa-pds] (PDS) files into structs with hashmap access to metadata and embedded objects.
 It also has Java Native Interface bindings.
+
+The library is currently only distributed via git.
+Its only dependency, [Christopher Clark's hashtable library][cc-hash], is checked in to the `lib` folder, so it can be compiled as long as you have a C compiler and runtime.
+
+[cc-hash]: https://github.com/ryantenney/chashtable
+
 
 I wrote this because I couldn't find any open-source code to do this (NASA releases a compiled shared library to do this sort of thing, but no source), and it seemed like fun.
 
@@ -14,7 +20,8 @@ If you find a PDS label that doesn't parse correctly, or causes errors, please [
 
 ## Usage - C Tool
 
-The library is currently only distributed via git:
+To get started:
+
 ```sh
 git clone https://github.com/aperiodic/pds-tools
 
@@ -48,3 +55,8 @@ The `debug` make target can be used to turn on print statements emitted during p
 ```sh
 make debug && ./build/pds-parse samples/mola.lbl
 ```
+
+## License
+
+This library's source and its bindings are licensed under the GPLv3 (see `COPYING`).
+The included hash table library from Christopher Clark is included in `lib` under the terms of the MIT License; the GPLv3 license that applies to the rest of this repository does not include the contents of the `lib` directory.
