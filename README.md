@@ -1,6 +1,8 @@
 # PDS Tools
 
-This is a C shared library that parses NASA [Planetary Data Science][nasa-pds] (PDS) files into structs with hashmap access to metadata and embedded objects.
+This is a C shared library that parses the labels of NASA [Planetary Data Science][nasa-pds] (PDS) files into structs with hashmap access to metadata and embedded objects.
+Labels only - metadata, but no data yet.
+The eventual goal of this project is to provide low-overhead conversion of PDS data files into 3D coordinates, but the label parsing is a necessary first step.
 It also has Java Native Interface bindings.
 
 The library is currently only distributed via git.
@@ -8,8 +10,6 @@ Its only dependency, [Christopher Clark's hashtable library][cc-hash], is checke
 
 [cc-hash]: https://github.com/ryantenney/chashtable
 
-
-I wrote this because I couldn't find any open-source code to do this (NASA releases a compiled shared library to do this sort of thing, but no source), and it seemed like fun.
 
 This project is still quite new and hasn't been extensively tested on extant PDS files.
 If you find a PDS label that doesn't parse correctly, or causes errors, please [open an issue about it][issues], [email me][email], or tweet @aperiodic.
