@@ -1,6 +1,6 @@
 # PDS Tools
 
-This is a C tool that parses NASA [Planetary Data Science][nasa-pds] (PDS) files into an abstract syntax tree for easy machine manipulation.
+This is a C shared library that parses NASA [Planetary Data Science][nasa-pds] (PDS) files into an abstract syntax tree for easy machine manipulation.
 It also has Java Native Interface bindings.
 
 I wrote this because I couldn't find any open-source code to do this (NASA releases a compiled shared library to do this sort of thing, but no source), and it seemed like fun.
@@ -14,17 +14,15 @@ If you find a PDS label that doesn't parse correctly, or causes errors, please [
 
 ## Usage - C Tool
 
-The only way to use this project at the moment is to clone this repo and compile it yourself.
-
+The library is currently only distributed via git:
 ```sh
 git clone https://github.com/aperiodic/pds-tools
 
 cd pds-tools
-make && make demo && ./bin/pds-parse-demo samples/mola.lbl
 ```
 
 The default make target produces a shared library named `libpdstools.so` in the `bin` folder.
-The `demo` target produces `bin/pds-parse-demo`, which can be run with the path to a PDS file in order to parse its label and print some basic information about it.
+The `demo` target produces `bin/pds-parse-demo`, and can be run on an included PDS label by executing the run target with `make run`.
 
 ## Usage - Java Bindings
 
